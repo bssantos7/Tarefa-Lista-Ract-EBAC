@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import useContext from 'react'
 import {usuarioContext} from './Context/UsuarioContext'
+import TelaLogin from './Componentes/TelaLogin'
 
 import Menu from './Componentes/Menu'
 
@@ -10,7 +11,7 @@ function App() {
 
   return (
     <>
-      <div className="container container-md">
+      <div className="container-md">
         <div className="row">
           <div class="col">
             <Menu />
@@ -18,9 +19,9 @@ function App() {
         </div>
         <div className="row">
           <div class="col">
-            <p>área principal</p>
+            <TelaLogin />
           </div>
-        </div>
+        </div>  
       </div>
     </>
   )
