@@ -15,17 +15,18 @@ function TelaLogin() {
         setId(e.target.value);
     }
     
-    function handleSubmit(e){
+    async function handleSubmit(e){
         e.preventDefault();
-        getUsuario(id);
+        await getUsuario(id);
     }
 
     return(
         <div>
+            <h1>Tela de Login</h1>
             <form onSubmit={handleSubmit}>
                 <div className="mb-3">
-                    <label htmlFor="exampleInputEmail1" className="form-label">ID: </label>
-                    <input type="text" className="form-control" id="id" name="id" value={id} onChange={handleChange} placeholder="Digite o ID do usuário" />
+                    <label htmlFor="id" className="form-label">ID: </label>
+                    <input type="text" className="form-control" id="id" name="id" value={id} onChange={handleChange} placeholder="Digite o ID do CRUDCRUD" />
                 </div>
                 
                 <button type="submit" className="btn btn-primary">{carregando?"Carregando...":"Entrar"}</button>

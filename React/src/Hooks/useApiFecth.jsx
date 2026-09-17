@@ -37,6 +37,30 @@ function useApiFetch() {
         }
     }
 
-    return{usuario, setUsuario, novoUsuario, setNovoUsuario, mensagem, setMensagem, getUsuario};
+    async function postUsuario(novoUsuario) {
+        if(statusProcessamento.current === 'ocupado'){
+            setMensagem('Processamento em andamento, aguarde...');
+            return;
+        }else{
+            statusProcessamento.current = 'ocupado';
+            setCarregando(true);
+           try {
+                const resposta=await fetch(url,{method:"POST", headers:{"Content-Type":"application/json"},body:JSON.stringify(novoUsuario)});
+                if(!resposta.ok){
+                    throw new Error(`Erro ao cadastrar usuário - ${resposta.status}`);
+                }else{
+                    const dados= await resposta.json();
+                    setMensagem(`ID do usuario cadastrado: ${dados._id}`);
+                }
+           } catch (error) {
+                setMensagem(`Erro ao cadastrar ususário - ${error.message}`);
+           }finally{
+                setCarregando(false);
+                statusProcessamento.current='livre';
+           }
+        }
+    }
+
+    return{usuario, setUsuario, novoUsuario, setNovoUsuario, mensagem, setMensagem, getUsuario, postUsuario};
 }
 export default useApiFetch;
