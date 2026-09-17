@@ -1,7 +1,7 @@
-import useContext from 'react'
-import useState from 'react'
-import ProcessamentoContext from './ProcessamentoContext'
-import useRef from 'react'
+import {useContext} from 'react'
+import {useState} from 'react'
+import {ProcessamentoContext} from './ProcessamentoContext'
+import {useRef} from 'react'
 
 function ProcessamentoProvider({children}) {
     // o useRef alterna entre livre e ocupado, serve para controlar a execução do fetch e impedir que chame várias vezes o processo. a mudança não causa re-render, então não precisa de useState.

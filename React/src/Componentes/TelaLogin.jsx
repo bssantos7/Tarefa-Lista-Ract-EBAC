@@ -1,7 +1,7 @@
-import useContext from 'react';
+import {useContext} from 'react';
 import { UsuarioContext } from './Componentes/UsuarioContext';
 import useApiFetch from '../Hooks/useApiFecth';
-import useState from 'react';
+import {useState} from 'react';
 import ProcessamentoProvider from '../Context/ProcessamentoProvider';
 
 function TelaLogin() {
