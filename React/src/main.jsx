@@ -4,10 +4,11 @@ import App from './App.jsx'
 import useContext from 'react'
 import UsuarioProvider from "./Context/UsuarioProvider.jsx";
 import ProcessamentoProvider from "./Context/ProcessamentoProvider.jsx";
+import PaginaProvider from "./Context/PaginaProvider.jsx";
 
 createRoot(document.getElementById('root')).render(
   
-  
+  <PaginaProvider>
     <ProcessamentoProvider>
       <UsuarioProvider>
         <StrictMode>
@@ -15,7 +16,6 @@ createRoot(document.getElementById('root')).render(
         </StrictMode>
       </UsuarioProvider>
     </ProcessamentoProvider>
-    
-  
+  </PaginaProvider>
   
 )

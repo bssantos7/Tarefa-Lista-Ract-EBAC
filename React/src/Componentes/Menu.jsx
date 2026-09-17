@@ -1,11 +1,18 @@
 import {useContext} from 'react';
-
 import {UsuarioContext} from '../Context/UsuarioContext';
+import PaginaContext from '../Context/PaginaContext';
+
 
 function Menu() {
 
-    
+    const{paginaAtual, setPaginaAtual} = useContext(PaginaContext);
     const{usuario, setUsuario} = useContext(UsuarioContext);
+
+    function trocarPagina(evento, pagina){
+        evento.preventDefault();
+        setPaginaAtual(pagina);
+    }
+
     
   return (
     <nav className="navbar navbar-expand-lg bg-body-tertiary">
@@ -17,13 +24,13 @@ function Menu() {
             <div className="collapse navbar-collapse" id="navbarText">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                 <li className="nav-item">
-                <a className="nav-link active" aria-current="page" href="#">Login</a>
+                <a className="nav-link active" aria-current="page" href="#" onClick={(evento) => trocarPagina(evento, 'login')}>Login</a>
                 </li>
                 <li className="nav-item">
-                <a className="nav-link" href="#">Cadastro</a>
+                <a className="nav-link" href="#" onClick={(evento) => trocarPagina(evento, 'cadastro')}>Cadastro</a>
                 </li>
                 <li className="nav-item">
-                <a className="nav-link" href="#">Gestão</a>
+                <a className="nav-link" href="#" onClick={(evento) => trocarPagina(evento, 'gestao')}>Gestão</a>
                 </li>
             </ul>
             <span className="navbar-text">
