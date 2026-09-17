@@ -1,14 +1,14 @@
 import {useContext} from "react";
 import {useState} from "react";
 import {useRef} from "react";
-import {UsuarioProvider} from "../Context/UsuarioProvider";
-import {ProcessamentoProvider} from "../Context/ProcessamentoProvider";
+//import {UsuarioProvider} from "../Context/UsuarioProvider";
+//import {ProcessamentoProvider} from "../Context/ProcessamentoProvider";
 import {UsuarioContext} from "../Context/UsuarioContext";
 import {ProcessamentoContext} from "../Context/ProcessamentoContext";
 
 function useApiFetch(id) {
     const {usuario, setUsuario} = useContext(UsuarioContext);
-    const [novoUsuario, setNovoUsuario] = useState({nome: '', tarefase: []});
+    const [novoUsuario, setNovoUsuario] = useState({nome: '', tarefas: []});
     const {statusProcessamento, carregando, setCarregando} = useContext(ProcessamentoContext);
     const url = "https://crudcrud.com/api/1186793ad8ce49d58cc1296b4ebc5c15/ToDoList";
     const [mensagem, setMensagem] = useState('');

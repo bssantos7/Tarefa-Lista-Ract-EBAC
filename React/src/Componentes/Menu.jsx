@@ -27,7 +27,7 @@ function Menu() {
                 </li>
             </ul>
             <span className="navbar-text">
-                {usuario ? `Bem-vindo, ${usuario}` : "Usuário não logado"}
+                {usuario ? `Bem-vindo, ${usuario.nome}` : "Usuário não logado"}
             </span>
             </div>
         </div>
