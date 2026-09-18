@@ -61,30 +61,44 @@ function useApiFetch() {
         }
     }
 
-    async function putUsuario(usuario) {
-        if(statusProcessamento.current==='ocupado'){
-            setMensagem('Processamento em andamento, aguarde...');
-            return;
-        }else{
-            statusProcessamento.current='ocupado';
-            setCarregando(true);
-            try {
-                const resposta=await fetch(`${url}/${usuario._id}`,{method:"PUT",headers:{'Content-Type':'application/json'},body:JSON.stringify(usuario)});
-                if(resposta.ok){
-                    const dados= await resposta.json();
-                    setMensagem(`Usuario atualizado com sucesso - ${resposta.status}`);
-                }else{
-                    throw new Error(`Erro ao atualizar o usuario - ${resposta.status}`);
-                }
-            } catch (error) {
-                setMensagem(error.message);
-            }finally{
-                setCarregando(false);
-                statusProcessamento.current='livre';
-            }
-        }
-        
+    async function putUsuario(usuarioParaAtualizar) {
+    if (statusProcessamento.current === 'ocupado') {
+        setMensagem('Processamento em andamento, aguarde...');
+        return false;
     }
+
+    statusProcessamento.current = 'ocupado';
+    setCarregando(true);
+
+    try {
+        const { _id, ...usuarioSemId } = usuarioParaAtualizar;
+
+        const resposta = await fetch(`${url}/${_id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(usuarioSemId)
+        });
+
+        if (!resposta.ok) {
+            throw new Error(
+                `Erro ao atualizar o usuário - ${resposta.status}`
+            );
+        }
+
+        setMensagem('Usuário atualizado com sucesso.');
+        return true;
+
+    } catch (error) {
+        setMensagem(`Erro ao atualizar usuário: ${error.message}`);
+        return false;
+
+    } finally {
+        setCarregando(false);
+        statusProcessamento.current = 'livre';
+    }
+}
 
     return{usuario, setUsuario, novoUsuario, setNovoUsuario, mensagem, setMensagem, getUsuario, postUsuario, putUsuario};
 }

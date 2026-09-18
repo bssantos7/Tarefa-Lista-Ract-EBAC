@@ -1,12 +1,12 @@
-import { useContext } from "react";
-import { UsuarioContext } from "../Context/UsuarioContext";
+import { useContext, useEffect, useState } from "react";
 import { ProcessamentoContext } from "../Context/ProcessamentoContext";
 import useApiFetch from "../Hooks/useApiFecth";
-import { useState } from "react";
-import { useEffect } from "react";
+
+function gerarCodigoTarefa(usuarioId) {
+    return `${usuarioId}/${crypto.randomUUID()}`;
+}
 
 function NovaTelaGestao() {
-
     const { carregando } = useContext(ProcessamentoContext);
 
     const {
@@ -17,217 +17,210 @@ function NovaTelaGestao() {
         putUsuario
     } = useApiFetch();
 
-    const [novaTarefa, setNovaTarefa] = useState({
-        cod: '',
-        texto: ''
-    });
+    const [textoNovaTarefa, setTextoNovaTarefa] = useState("");
+    const [codigoNovaTarefa, setCodigoNovaTarefa] = useState("");
 
-    const [digito, setDigito] = useState(0);
-
-
-    function geraCodigoTarefa() {
-
-        if (!usuario?._id) {
-            return;
-        }
-
-        const digitoVerificador = digito + 1;
-        const codigo = `${usuario._id}/${digitoVerificador}`;
-
-        setNovaTarefa((tarefaAnterior) => ({
-            ...tarefaAnterior,
-            cod: codigo
-        }));
-    }
-
-
+    /*
+      Este effect é útil apenas para preparar o código da próxima tarefa
+      quando o usuário for carregado ou trocado.
+    */
     useEffect(() => {
-
         if (usuario?._id) {
-            geraCodigoTarefa();
+            setCodigoNovaTarefa(gerarCodigoTarefa(usuario._id));
+        } else {
+            setCodigoNovaTarefa("");
         }
-
-    }, [usuario, digito]);
-
+    }, [usuario?._id]);
 
     function handleChange(evento) {
-
-        const { name, value } = evento.target;
-
-        setNovaTarefa((tarefaAnterior) => ({
-            ...tarefaAnterior,
-            [name]: value
-        }));
-
+        setTextoNovaTarefa(evento.target.value);
     }
 
-
-    async function handleSubmit(e) {
-
-        e.preventDefault();
+    async function handleSubmit(evento) {
+        evento.preventDefault();
 
         if (!usuario?._id) {
-
-            setMensagem(
-                "Usuario não localizado. Faça o login primeiro."
-            );
-
+            setMensagem("Usuário não localizado. Faça login primeiro.");
             return;
         }
 
-        if (novaTarefa.texto.trim() === "") {
+        const texto = textoNovaTarefa.trim();
 
-            setMensagem(
-                "O campo da nova tarefa não pode ser vazio!"
-            );
-
+        if (!texto) {
+            setMensagem("O campo da nova tarefa não pode ser vazio.");
             return;
         }
 
+        const tarefa = {
+            cod: codigoNovaTarefa,
+            texto
+        };
 
         const usuarioAtualizado = {
             ...usuario,
             tarefas: [
                 ...(usuario.tarefas || []),
-                novaTarefa
+                tarefa
             ]
         };
 
+        /*
+          Primeiro salva na API.
+          Só atualiza o Context se a API confirmou o sucesso.
+        */
+        const atualizou = await putUsuario(usuarioAtualizado);
 
+        if (!atualizou) {
+            return;
+        }
+
+        /*
+          Esta alteração no Context provoca automaticamente
+          uma nova renderização da tabela.
+        */
         setUsuario(usuarioAtualizado);
 
-        await putUsuario(usuarioAtualizado);
-
-
-        setDigito((numeroAnterior) => numeroAnterior + 1);
-
-        setNovaTarefa({
-            cod: '',
-            texto: ''
-        });
+        setTextoNovaTarefa("");
+        setCodigoNovaTarefa(gerarCodigoTarefa(usuario._id));
     }
 
+    async function handleExcluir(codigoTarefa) {
+        if (!usuario?._id) {
+            setMensagem("Usuário não localizado.");
+            return;
+        }
+
+        const tarefasAtualizadas = (usuario.tarefas || []).filter(
+            (tarefa) => tarefa.cod !== codigoTarefa
+        );
+
+        const usuarioAtualizado = {
+            ...usuario,
+            tarefas: tarefasAtualizadas
+        };
+
+        const atualizou = await putUsuario(usuarioAtualizado);
+
+        if (!atualizou) {
+            return;
+        }
+
+        /*
+          Após atualizar o Context, o map da tabela será executado
+          novamente sem precisar de useEffect.
+        */
+        setUsuario(usuarioAtualizado);
+    }
 
     return (
         <div>
-
             <h1>Tela de Gestão</h1>
 
+            {mensagem && (
+                <div className="alert alert-info" role="alert">
+                    {mensagem}
+                </div>
+            )}
+
             <form onSubmit={handleSubmit}>
-
                 <div className="mb-3">
-
-                    <label
-                        htmlFor="texto"
-                        className="form-label"
-                    >
-                        Nova Tarefa:
+                    <label htmlFor="texto" className="form-label">
+                        Nova tarefa:
                     </label>
-
 
                     <input
                         type="text"
                         className="form-control"
                         id="texto"
                         name="texto"
-                        value={novaTarefa.texto}
+                        value={textoNovaTarefa}
                         onChange={handleChange}
                         placeholder="Digite uma nova tarefa"
+                        disabled={carregando || !usuario?._id}
                         required
                     />
 
+                    <label htmlFor="cod" className="form-label mt-2">
+                        Código gerado:
+                    </label>
 
                     <input
                         className="form-control"
                         id="cod"
                         type="text"
-                        placeholder="Código da Tarefa Gerado automaticamente"
                         disabled
-                        value={novaTarefa.cod}
+                        value={codigoNovaTarefa}
                     />
-
                 </div>
-
 
                 <button
                     type="submit"
                     className="btn btn-primary"
+                    disabled={carregando || !usuario?._id}
                 >
                     {carregando ? "Carregando..." : "Cadastrar tarefa"}
                 </button>
-
             </form>
 
-
-            <div>
-
-                <p>Nome: {usuario?.nome}</p>
-
+            <div className="mt-4">
+                <p>
+                    <strong>Nome:</strong> {usuario?.nome}
+                </p>
             </div>
 
-
             <table className="table">
-
                 <thead>
-
                     <tr>
                         <th scope="col">Feito?</th>
                         <th scope="col">Código</th>
                         <th scope="col">Tarefa</th>
                         <th scope="col">Excluir</th>
                     </tr>
-
                 </thead>
 
-
                 <tbody>
-
-                    {usuario?.tarefas?.map((tarefa) => (
-
+                    {(usuario?.tarefas || []).map((tarefa) => (
                         <tr key={tarefa.cod}>
-
-                            <th scope="row">
-
+                            <td>
                                 <div className="form-check">
-
                                     <input
                                         className="form-check-input"
                                         type="checkbox"
                                         id={`check-${tarefa.cod}`}
                                     />
-
                                 </div>
-
-                            </th>
-
-                            <td>
-                                {tarefa.cod}
                             </td>
 
-                            <td>
-                                {tarefa.texto}
-                            </td>
+                            <td>{tarefa.cod}</td>
+
+                            <td>{tarefa.texto}</td>
 
                             <td>
-
                                 <button
                                     type="button"
                                     className="btn btn-danger"
+                                    disabled={carregando}
+                                    onClick={() =>
+                                        handleExcluir(tarefa.cod)
+                                    }
                                 >
                                     Excluir
                                 </button>
-
                             </td>
-
                         </tr>
-
                     ))}
 
+                    {!usuario?.tarefas?.length && (
+                        <tr>
+                            <td colSpan="4" className="text-center">
+                                Nenhuma tarefa cadastrada.
+                            </td>
+                        </tr>
+                    )}
                 </tbody>
-
             </table>
-
         </div>
     );
 }
+
 export default NovaTelaGestao;
