@@ -19,6 +19,7 @@ function NovaTelaGestao() {
 
     const [textoNovaTarefa, setTextoNovaTarefa] = useState("");
     const [codigoNovaTarefa, setCodigoNovaTarefa] = useState("");
+    const [concluido, setConcluido]=useState(false);
 
     /*
       Este effect é útil apenas para preparar o código da próxima tarefa
@@ -31,6 +32,37 @@ function NovaTelaGestao() {
             setCodigoNovaTarefa("");
         }
     }, [usuario?._id]);
+
+    async function handleConcluido(codigoTarefa) {
+    if (!usuario?._id) {
+        setMensagem("Usuário não localizado.");
+        return;
+    }
+
+    const tarefasAtualizadas = (usuario.tarefas || []).map((tarefa) => {
+        if (tarefa.cod === codigoTarefa) {
+            return {
+                ...tarefa,
+                concluido: !tarefa.concluido
+            };
+        }
+
+        return tarefa;
+    });
+
+    const usuarioAtualizado = {
+        ...usuario,
+        tarefas: tarefasAtualizadas
+    };
+
+    const atualizou = await putUsuario(usuarioAtualizado);
+
+    if (!atualizou) {
+        return;
+    }
+
+    setUsuario(usuarioAtualizado);
+}
 
     function handleChange(evento) {
         setTextoNovaTarefa(evento.target.value);
@@ -53,7 +85,8 @@ function NovaTelaGestao() {
 
         const tarefa = {
             cod: codigoNovaTarefa,
-            texto
+            texto,
+            concluido:false
         };
 
         const usuarioAtualizado = {
@@ -171,7 +204,7 @@ function NovaTelaGestao() {
             <table className="table">
                 <thead>
                     <tr>
-                        <th scope="col">Feito?</th>
+                        <th scope="col">Concluido?</th>
                         <th scope="col">Código</th>
                         <th scope="col">Tarefa</th>
                         <th scope="col">Excluir</th>
@@ -183,10 +216,13 @@ function NovaTelaGestao() {
                         <tr key={tarefa.cod}>
                             <td>
                                 <div className="form-check">
-                                    <input
+                                   <input
                                         className="form-check-input"
                                         type="checkbox"
                                         id={`check-${tarefa.cod}`}
+                                        checked={tarefa.concluido === true}
+                                        onChange={() => handleConcluido(tarefa.cod)}
+                                        disabled={carregando}
                                     />
                                 </div>
                             </td>
