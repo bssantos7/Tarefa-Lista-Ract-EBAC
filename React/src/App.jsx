@@ -6,6 +6,7 @@ import TelaLogin from './Componentes/TelaLogin'
 import Menu from './Componentes/Menu'
 import TelaCadastro from './Componentes/TelaCadastro'
 import TelaGestao from './Componentes/TelaGestao'
+import NovaTelaGestao from './Componentes/NovaTelaGestao'
 
 
 
@@ -19,7 +20,7 @@ function App() {
       case 'cadastro':
         return <TelaCadastro />
       case 'gestao':
-        return <TelaGestao />
+        return <NovaTelaGestao />
       default:
         return <TelaLogin />
     }
