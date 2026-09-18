@@ -5,7 +5,7 @@ import PaginaContext from './Context/PaginaContext'
 import TelaLogin from './Componentes/TelaLogin'
 import Menu from './Componentes/Menu'
 import TelaCadastro from './Componentes/TelaCadastro'
-import TelaGestao from './Componentes/TelaGestao'
+
 import NovaTelaGestao from './Componentes/NovaTelaGestao'
 
 
